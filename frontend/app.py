@@ -37,15 +37,19 @@ def get_llm():
     if LLM_PROVIDER == "openrouter":
         from langchain_openai import ChatOpenAI
 
+        if not OPENROUTER_CONFIG["api_key"]:
+            raise ValueError("OPENROUTER_API_KEY is not set in .env file")
+
         return ChatOpenAI(
             model=OPENROUTER_CONFIG["model"],
             api_key=OPENROUTER_CONFIG["api_key"],
-            base_url="https://openrouter.ai/v1",
+            base_url="https://openrouter.ai/api/v1",
             temperature=OPENROUTER_CONFIG["temperature"],
             top_p=OPENROUTER_CONFIG["top_p"],
+            max_tokens=4096,
             default_headers={
-                "HTTP-Referer": OPENROUTER_CONFIG["site_url"] or "https://localhost",
-                "X-Title": OPENROUTER_CONFIG["site_name"],
+                "HTTP-Referer": "https://localhost",
+                "X-Title": "Research Graph",
             },
         )
     else:
@@ -224,7 +228,7 @@ try:
                     st.session_state["last_research"] = accumulated
                 except Exception as e:
                     progress.update(label="Failed", state="error")
-                    st.exception(e)
+                    st.error(f"LLM Error: {str(e)}")
             else:
                 with st.spinner("Running full pipeline…"):
                     try:
@@ -235,7 +239,7 @@ try:
                             rag_snippets=rag_snippets,
                         )
                     except Exception as e:
-                        st.exception(e)
+                        st.error(f"Error: {str(e)}")
 
     result = st.session_state.get("last_research")
     if result:
