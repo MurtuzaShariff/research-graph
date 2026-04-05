@@ -3,6 +3,9 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent
 
+from dotenv import load_dotenv
+load_dotenv()
+
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "ollama")  # "ollama" or "openrouter"
 
 OLLAMA_CONFIG = {
